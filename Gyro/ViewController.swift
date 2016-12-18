@@ -37,13 +37,16 @@ class ViewController: UIViewController {
     var ySeries: [Double] = []
     var zSeries: [Double] = []
     
+    // Orders of Magntitude Greater or Lesser
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCoreMotion()
     }
     
     func setupCoreMotion() {
-        manager.gyroUpdateInterval = 1
+        manager.gyroUpdateInterval = 0.1
         
         let queue = OperationQueue.main
         manager.startGyroUpdates(to: queue) { (data, error) in
@@ -52,7 +55,6 @@ class ViewController: UIViewController {
             
             self.updateRotationValues(with: data)
             self.runTimeSeries()
-            self.updateLabels()
         }
         
     }
@@ -75,7 +77,18 @@ class ViewController: UIViewController {
     }
     
     func runTimeSeries() {
+        xAverage = xSeries.reduce(0, +) / Double(xSeries.count)
+        yAverage = ySeries.reduce(0, +) / Double(ySeries.count)
+        zAverage = zSeries.reduce(0, +) / Double(zSeries.count)
         
+        let resetInterval = 30
+        if xSeries.count > resetInterval || ySeries.count > resetInterval || zSeries.count > resetInterval {
+            xSeries = [xAverage]
+            ySeries = [yAverage]
+            zSeries = [zAverage]
+            self.updateLabels(usingAverage: true)
+            print("Reset series.")
+        }
     }
     
     func updateLabels(usingAverage useAverage: Bool = false) {
